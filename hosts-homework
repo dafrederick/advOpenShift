@@ -1,0 +1,201 @@
+[OSEv3:vars]
+
+###########################################################################
+### Ansible Vars
+###########################################################################
+timeout=60
+#ansible_become=yes
+ansible_ssh_user=root
+
+
+###########################################################################
+### OpenShift Basic Vars
+###########################################################################
+
+deployment_type=openshift-enterprise
+containerized=false
+# openshift_metrics_image_version=v3.6
+# openshift_image_tag=v3.6
+# openshift_release=3.6.173.0.21
+# docker_version="1.12.6"
+openshift_disable_check="disk_availability,memory_availability"
+
+# default project node selector
+osm_default_node_selector='env=app'
+
+
+###########################################################################
+### OpenShift Optional Vars
+###########################################################################
+
+# Enable cockpit
+osm_use_cockpit=true
+osm_cockpit_plugins=['cockpit-kubernetes']
+
+###########################################################################
+### OpenShift Master Vars
+###########################################################################
+
+openshift_master_api_port=443
+openshift_master_console_port=443
+
+openshift_master_cluster_method=native
+openshift_master_cluster_hostname=loadbalancer1.example.com
+openshift_master_cluster_public_hostname=loadbalancer1-899c.oslab.opentlc.com
+openshift_master_default_subdomain=cloudapps-899c.oslab.opentlc.com
+openshift_master_overwrite_named_certificates=True
+
+openshift_set_hostname=true
+# Project Configuration
+#osm_project_request_message='Please create project using the portal https://provision'
+
+#g_new_node_hosts=[node2.example.com]
+
+###########################################################################
+### OpenShift Network Vars
+###########################################################################
+
+osm_cluster_network_cidr=10.1.0.0/16
+openshift_portal_net=172.30.0.0/16
+
+os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
+#os_sdn_network_plugin_name='redhat/openshift-ovs-subnet'
+
+
+###########################################################################
+### OpenShift Authentication Vars
+###########################################################################
+
+# LDAP auth
+# #openshift_master_identity_providers=[{'name': 'my_ldap_provider', 'challenge': 'true', 'login': 'true', 'kind': 'LDAPPasswordIdentityProvider', 'attributes': {'id': ['dn'], 'email': ['mail'], 'name': ['cn'], 'preferredUsername': ['uid']}, 'bindDN': '', 'bindPassword': '', 'ca': '', 'insecure': 'false', 'url': 'ldap://ldap.example.com:389/ou=users,dc=example,dc=com?uid'}]
+# # Configuring the ldap ca certificate
+# #openshift_master_ldap_ca=<ca text>
+# # or
+# #openshift_master_ldap_ca_file=<path to local ca file to use>
+
+#LDAP auth
+openshift_master_identity_providers=[{'name': 'ldap', 'challenge': 'true', 'login': 'true', 'kind': 'LDAPPasswordIdentityProvider', 'attributes': {'id': ['dn'], 'email': ['mail'], 'name': ['cn'], 'preferredUsername': ['uid']}, 'bindDN': 'uid=admin,cn=users,cn=accounts,dc=example,dc=com', 'bindPassword': 'r3dh4t1!', 'ca': '/etc/origin/master/ipa-ca.crt', 'insecure': 'false', 'url': 'ldaps://idm.example.com:636/cn=users,cn=accounts,dc=example,dc=com?uid?sub?(memberOf=cn=ose-users,cn=groups,cn=accounts,dc=example,dc=com)'}]
+
+#bindDN: uid=admin,cn=users,cn=accounts,dc=shared,dc=example,dc=opentlc,dc=com
+#bindPassword: r3dh4t1!
+
+#ca: /etc/origin/master/ipa-ca.crt
+#url: ldaps://ipa.shared.example.opentlc.com:636/cn=users,cn=accounts,dc=shared,dc=example,dc=opentlc,dc=com?uid?sub?(memberOf=cn=ocp-users,cn=groups,cn=accounts,dc=shared,dc=example,dc=opentlc,dc=com)
+
+
+
+# htpasswd auth
+#openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+# Defining htpasswd users
+# openshift_master_htpasswd_users={'user1': '<pre-hashed password>', 'user2': '<pre-hashed password>'}
+# or
+#openshift_master_htpasswd_file=/root/htpasswd.openshift
+
+openshift_master_ldap_ca_file=/root/ipa-ca.crt
+
+###########################################################################
+### OpenShift Metrics Vars
+###########################################################################
+
+openshift_hosted_metrics_deploy=True
+
+openshift_hosted_metrics_storage_kind=nfs
+openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_metrics_storage_nfs_directory=/srv/nfs
+openshift_hosted_metrics_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_metrics_storage_volume_name=metrics
+openshift_hosted_metrics_storage_volume_size=10Gi
+
+openshift_hosted_metrics_public_url=https://hawkular-metrics.apps.rdu11.example.opentlc.com/hawkular/metrics
+
+###########################################################################
+#### OpenShift Logging Vars
+############################################################################
+
+openshift_hosted_logging_deploy=True
+
+openshift_hosted_logging_storage_kind=nfs
+openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_logging_storage_nfs_directory=/srv/nfs
+openshift_hosted_logging_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_logging_storage_volume_name=logging
+openshift_hosted_logging_storage_volume_size=10Gi
+
+openshift_hosted_logging_hostname=kibana.apps.rdu11.example.opentlc.com
+openshift_hosted_logging_elasticsearch_cluster_size=1
+openshift_master_logging_public_url=https://kibana.apps.rdu11.example.opentlc.com
+
+# openshift_hosted_logging_deployer_version=v3.6
+# This one is wrong (down arrow)
+#openshift_hosted_logging_image_version=v3.6
+#openshift_logging_image_version=v3.6
+
+###########################################################################
+### OpenShift Project Management Vars
+###########################################################################
+
+# Configure additional projects
+# openshift_additional_projects={'my-infra-project-test': {'default_node_selector': 'env=infra'}}
+
+###########################################################################
+### OpenShift Router and Registry Vars
+###########################################################################
+
+openshift_hosted_router_selector='env=infra'
+openshift_hosted_router_replicas=2
+# openshift_hosted_router_certificate={"certfile": "/path/to/router.crt", "keyfile": "/path/to/router.key", "cafile": "/path/to/router-ca.crt"}
+
+openshift_hosted_registry_selector='env=infra'
+openshift_hosted_registry_replicas=2
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_nfs_directory=/srv/nfs
+openshift_hosted_registry_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_registry_storage_volume_name=registry
+openshift_hosted_registry_storage_volume_size=10Gi
+
+###########################################################################
+#### OpenShift Host Vars
+############################################################################
+
+[OSEv3:children]
+masters
+etcd
+nodes
+#nfs
+lb
+
+[lb]
+loadbalancer1.example.com host_zone=us-east-1b
+
+[masters]
+master1.example.com host_zone=us-east-1b
+master2.example.com host_zone=us-east-1b
+master3.example.com host_zone=us-east-1b
+
+[etcd]
+master1.example.com host_zone=us-east-1b
+master2.example.com host_zone=us-east-1b
+master3.example.com host_zone=us-east-1b
+
+[nodes]
+## These are the masters
+master1.example.com openshift_hostname=master1.example.com ansible_ssh_user=root openshift_node_labels="{'logging':'true','openshift_schedulable':'False','cluster': 'rdu11', 'zone': 'us-east-1b'}"
+master2.example.com openshift_hostname=master2.example.com ansible_ssh_user=root openshift_node_labels="{'logging':'true','openshift_schedulable':'False','cluster': 'rdu11', 'zone': 'us-east-1b'}"
+master3.example.com openshift_hostname=master3.example.com ansible_ssh_user=root openshift_node_labels="{'logging':'true','openshift_schedulable':'False','cluster': 'rdu11', 'zone': 'us-east-1b'}"
+
+## These are infranodes
+infranode1.example.com openshift_hostname=infranode1.example.com  ansible_ssh_user=root openshift_node_labels="{'logging':'true','cluster': 'rdu11', 'env':'infra', 'zone': 'us-east-1b'}"
+infranode2.example.com openshift_hostname=infranode2.example.com  ansible_ssh_user=root openshift_node_labels="{'logging':'true','cluster': 'rdu11', 'env':'infra', 'zone': 'us-east-1b'}"
+
+## These are regular nodes
+node1.example.com openshift_hostname=node1.example.com  ansible_ssh_user=root openshift_node_labels="{'logging':'true','cluster': 'rdu11', 'env':'app', 'zone': 'us-east-1b'}"
+node2.example.com openshift_hostname=node2.example.com  ansible_ssh_user=root openshift_node_labels="{'logging':'true','cluster': 'rdu11', 'env':'app', 'zone': 'us-east-1b'}"
+
+#[nfs]
+#oselab.example.com openshift_hostname=oselab.example.com  ansible_ssh_user=root 
+
+
+#[new_nodes]
+#node2.example.com openshift_schedulable=false
+
